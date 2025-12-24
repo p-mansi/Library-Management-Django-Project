@@ -1,0 +1,51 @@
+{% extends 'books/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="book-list-container">
+    <h1 class="page-title"><i class="fa-solid fa-book" style="color: black;"></i> Book List</h1>
+    
+    <div class="button-group">
+        <a href="{% url 'book_create' %}" class="btn btn-primary"><i class="fa-solid fa-book"></i> Add Book</a>
+    </div>
+
+    <ul class="book-list">
+        {% for book in books %}
+        <li class="book-item">
+            <a href="{% url 'book_detail' book.pk %}" class="book-link">
+                {% if book.image %}
+                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="img-fluid rounded" style="width: 150px; height: 150px;">
+                {% else %}
+                    <img src="/media/images/default.webp" alt="Default Image" class="img-fluid rounded" style="width: 150px; height: 150px;">
+                {% endif %}
+                <span class="book-title">{{ book.title }}</span>
+                <span class="book-author">{{ book.author }}</span>
+            </a>
+            
+            <div class="action-buttons">
+                <a href="{% url 'book_update' book.pk %}" class="btn btn-edit"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                <a href="{% url 'book_delete' book.pk %}" class="btn btn-delete"><i class="fa-solid fa-trash"></i> Delete</a>
+
+                {% if book.is_available %}
+                    <a href="{% url 'borrow_book' book.id %}" class="btn btn-success">Borrow</a>
+                {% else %}
+                    {% with borrowed_book=book.borrowedbook_set.first %}
+                        {% if borrowed_book %}
+                            <a href="{% url 'return_book' borrowed_book.id %}" class="btn btn-warning">Return</a>
+                        {% else %}
+                            <span class="book-status"> Currently Borrowed</span>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <p class="text-danger text-center mt-3">
+            No books found for "<strong>{{ query }}</strong>".
+        </p>
+        {% endfor %}
+    </ul>
+</div>
+
+
+{% endblock %}
